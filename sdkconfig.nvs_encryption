@@ -1,0 +1,28 @@
+# Configuration NVS Encryption pour APRU40
+# À ajouter au sdkconfig ou via menuconfig
+
+# Activer chiffrement NVS
+CONFIG_NVS_ENCRYPTION=y
+
+# Méthode de protection de la clé NVS
+# Option 2 = Basé sur Flash Encryption (recommandé pour production)
+CONFIG_NVS_SEC_KEY_PROTECTION_SCHEME=2
+
+# Si Flash Encryption n'est pas activée, utiliser Option 1 (HMAC)
+# CONFIG_NVS_SEC_KEY_PROTECTION_SCHEME=1
+
+# Activer Flash Encryption (RECOMMANDÉ pour production)
+# ATTENTION : Une fois activé, le flash devient irrécupérable sans clé !
+# CONFIG_SECURE_FLASH_ENCRYPTION_MODE_RELEASE=y
+# CONFIG_SECURE_BOOT_V2_ENABLED=y
+
+# Pour développement (désactiver en production)
+CONFIG_NVS_SEC_KEY_PROTECTION_SCHEME=1
+
+# Carte SD
+CONFIG_FATFS_LFN_HEAP=y
+CONFIG_FATFS_MAX_LFN=255
+CONFIG_FATFS_API_ENCODING_UTF_8=y
+
+# SDMMC
+CONFIG_SDMMC_HOST_SUPPORT=y
