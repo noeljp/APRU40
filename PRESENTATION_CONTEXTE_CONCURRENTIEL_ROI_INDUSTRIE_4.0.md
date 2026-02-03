@@ -905,10 +905,10 @@ Dans un **contexte concurrentiel intense** où les solutions IoT industrielles c
 
 ### Projet APRU40
 
-**Site web** : www.apru40.example.com  
-**Email** : contact@apru40.example.com  
 **GitHub** : github.com/noeljp/APRU40  
-**Documentation** : docs.apru40.example.com
+**Issues** : github.com/noeljp/APRU40/issues  
+**Discussions** : github.com/noeljp/APRU40/discussions  
+**Wiki** : github.com/noeljp/APRU40/wiki
 
 ### Support Commercial
 
@@ -920,9 +920,8 @@ Dans un **contexte concurrentiel intense** où les solutions IoT industrielles c
 ### Support Technique
 
 **GitHub Issues** : Support communauté (gratuit)  
-**Forum** : forum.apru40.example.com  
-**Email** : support@apru40.example.com  
-**Documentation** : 200+ pages techniques
+**Discussions GitHub** : github.com/noeljp/APRU40/discussions  
+**Documentation** : 200+ pages techniques (voir README.md)
 
 ---
 
