@@ -401,6 +401,7 @@ E (5680) BT_SEC:    Attendu: 12:34:56:78:9A:BC
 | Document | Description |
 |----------|-------------|
 | [AUDIT_SECURITE_NIS2.md](AUDIT_SECURITE_NIS2.md) | Audit complet conformité NIS2 |
+| [BLUETOOTH_JUSTIFICATION_BASELINE.md](BLUETOOTH_JUSTIFICATION_BASELINE.md) | Justification conformité Bluetooth (TAS, NIST, NISTIR) |
 | [DEPLOYMENT_GUIDE_SECURED.md](DEPLOYMENT_GUIDE_SECURED.md) | Guide déploiement sécurisé sur site |
 | [FLASH_ENCRYPTION_SECURE_BOOT_GUIDE.md](FLASH_ENCRYPTION_SECURE_BOOT_GUIDE.md) | Guide activation Flash Encryption + Secure Boot |
 | [main/main_secured.c](main/main_secured.c) | Exemple d'intégration complète |

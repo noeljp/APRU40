@@ -553,6 +553,7 @@ ESP_LOGI(TAG, "Stats: valid=%lu invalid=%lu", valid, invalid_hmac);
 
 ### Documentation projet
 
+- **Justification Bluetooth Baseline** : [BLUETOOTH_JUSTIFICATION_BASELINE.md](BLUETOOTH_JUSTIFICATION_BASELINE.md)
 - **Guide de pairing scanner** : [ZEBRA_DS2278_SETUP.md](ZEBRA_DS2278_SETUP.md)
 - **Code source principal** : [main/main.c](main/main.c)
 - **Composant sécurité** : [components/esp_now_secure/](components/esp_now_secure/)
