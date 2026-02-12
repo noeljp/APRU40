@@ -156,7 +156,7 @@ Idéal pour :
 - **Animations fluides** : 60 FPS via requestAnimationFrame
 - **Optimisé** : Particules détruites après animation
 - **Responsive** : ViewBox SVG adaptative
-- **Léger** : ~21 Ko (un seul fichier)
+- **Léger** : ~20 Ko (un seul fichier)
 
 ### Compatibilité
 - ✅ Chrome 90+
