@@ -1,5 +1,20 @@
 # Projet APRU40 - Réseau de capteurs ESP32 avec ESP-NOW sécurisé
 
+## 🎨 Visualisation Architecture
+
+**[📄 Voir la page de visualisation complète : `architecture_iot.html`](architecture_iot.html)**
+
+Une page HTML interactive qui présente l'architecture complète du réseau IoT avec :
+- 🌐 Zones réseau color-codées (IoT, Gateway, Bridge, BMN, OI)
+- 🔐 Stratégie de sécurité multi-couches (6 niveaux)
+- 📊 Types de flux de données (data, config, OTA)
+- 🛡️ Mécanismes de protection et conformité NIS2
+- 📈 Vue d'ensemble permettant de comprendre l'ensemble de la stratégie en un coup d'œil
+
+Pour consulter : Ouvrir `architecture_iot.html` dans un navigateur web.
+
+---
+
 ## 📡 Architecture réseau
 
 Ce projet implémente un réseau de nœuds capteurs IoT basé sur **ESP32** avec communication sans fil **ESP-NOW** et sécurité applicative renforcée (AES-256 + HMAC-SHA256).
