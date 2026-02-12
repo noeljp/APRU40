@@ -2,16 +2,26 @@
 
 ## 🎨 Visualisation Architecture
 
-**[📄 Voir la page de visualisation complète : `architecture_iot.html`](architecture_iot.html)**
+### 🌟 [Vue Interactive Animée : `architecture_interactive.html`](architecture_interactive.html) ⭐ NOUVEAU
 
-Une page HTML interactive qui présente l'architecture complète du réseau IoT avec :
+**Page interactive et animée qui tient sur un écran (sans scrolling)** avec :
+- 🎬 **Animations en temps réel** des flux de données entre les composants
+- 🔗 **Blocs interconnectés** montrant la topologie du réseau
+- 🌊 **Propagation visible** des données, configuration, chiffrement, OTA
+- 🖱️ **Interactions** : survoler les nœuds pour infos, cliquer pour flux, ESPACE pour burst
+- 🎨 **Design moderne** : gradient, SVG, animations fluides
+- 📱 **Responsive** : s'adapte à la taille de l'écran
+
+**[📄 Voir aussi la documentation complète : `architecture_iot.html`](architecture_iot.html)**
+
+Page de documentation détaillée qui présente l'architecture complète du réseau IoT avec :
 - 🌐 Zones réseau color-codées (IoT, Gateway, Bridge, BMN, OI)
 - 🔐 Stratégie de sécurité multi-couches (6 niveaux)
 - 📊 Types de flux de données (data, config, OTA)
 - 🛡️ Mécanismes de protection et conformité NIS2
 - 📈 Vue d'ensemble permettant de comprendre l'ensemble de la stratégie en un coup d'œil
 
-Pour consulter : Ouvrir `architecture_iot.html` dans un navigateur web.
+Pour consulter : Ouvrir les fichiers HTML dans un navigateur web.
 
 ---
 

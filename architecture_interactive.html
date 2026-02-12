@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture APRU40 - Vue Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            padding: 15px 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .architecture-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            max-height: 700px;
+        }
+
+        /* Node styles */
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            filter: brightness(1.2);
+        }
+
+        .node:hover .node-rect {
+            stroke-width: 3;
+        }
+
+        .node-rect {
+            stroke: #333;
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .node-text {
+            fill: white;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        .node-subtext {
+            fill: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        /* Connection lines */
+        .connection {
+            stroke: #667eea;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.6;
+        }
+
+        /* Flow animations */
+        .flow-particle {
+            opacity: 0;
+        }
+
+        .flow-config { fill: #ffd93d; }
+        .flow-data { fill: #4ecdc4; }
+        .flow-crypto { fill: #ff6b6b; }
+        .flow-ota { fill: #95e1d3; }
+
+        /* Tooltips */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .tooltip.visible {
+            display: block;
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+
+        /* Pulse animation for active nodes */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .active-node {
+            animation: pulse 2s infinite;
+        }
+
+        /* Flow particle animation */
+        @keyframes flowAnim {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔄 Architecture APRU40 - Vue Interactive & Animée</h1>
+        <p>Réseau de capteurs IoT avec flux de données en temps réel</p>
+    </header>
+
+    <div class="architecture-container">
+        <svg id="architecture-svg" viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid meet">
+            <!-- Definitions for gradients and markers -->
+            <defs>
+                <!-- Arrow markers for connections -->
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#667eea" />
+                </marker>
+
+                <!-- Gradients for nodes -->
+                <linearGradient id="gradIoT" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ee5a52;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="gradGateway" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#44a3a0;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="gradBridge" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#95e1d3;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#7cc9ba;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="gradServer" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#a8dadc;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#8bb8ba;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="gradOI" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ffd93d;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#f9c700;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+
+            <!-- Connection paths (drawn first, under nodes) -->
+            <g id="connections">
+                <!-- IoT Nodes to Gateway -->
+                <path id="path-iot-gateway" class="connection" d="M 180 150 Q 350 200 520 300" marker-end="url(#arrowhead)" />
+                <path id="path-iot2-gateway" class="connection" d="M 180 250 Q 350 270 520 300" marker-end="url(#arrowhead)" />
+                <path id="path-iot3-gateway" class="connection" d="M 180 350 Q 350 340 520 300" marker-end="url(#arrowhead)" />
+                
+                <!-- Gateway to Bridge -->
+                <path id="path-gateway-bridge" class="connection" d="M 620 300 L 800 350" marker-end="url(#arrowhead)" />
+                
+                <!-- Bridge to Server -->
+                <path id="path-bridge-server" class="connection" d="M 900 350 L 1050 350" marker-end="url(#arrowhead)" />
+                
+                <!-- Server to OI -->
+                <path id="path-server-oi" class="connection" d="M 1150 350 L 1250 250" marker-end="url(#arrowhead)" />
+                
+                <!-- Config flow back (OI to Server to Bridge to Gateway to IoT) -->
+                <path id="path-config-back" class="connection" d="M 1250 280 L 1150 380 L 900 380 L 620 330 L 180 380" marker-end="url(#arrowhead)" stroke-dasharray="5,5" opacity="0.4" />
+            </g>
+
+            <!-- IoT Zone (left side) -->
+            <g class="node" data-name="node-iot" data-info="Capteurs ESP32 avec ADCs, Bluetooth, WiFi ESP-NOW">
+                <rect class="node-rect" x="50" y="50" width="130" height="80" rx="10" fill="url(#gradIoT)" />
+                <text class="node-text" x="115" y="85" text-anchor="middle" font-size="14">Nœud IoT #1</text>
+                <text class="node-subtext" x="115" y="105" text-anchor="middle">ESP32-POE-ISO</text>
+                <text class="node-subtext" x="115" y="120" text-anchor="middle">📊 Capteurs</text>
+            </g>
+
+            <g class="node" data-name="node-iot2" data-info="Acquisition ADC, scanner Bluetooth Zebra DS2278">
+                <rect class="node-rect" x="50" y="150" width="130" height="80" rx="10" fill="url(#gradIoT)" />
+                <text class="node-text" x="115" y="185" text-anchor="middle" font-size="14">Nœud IoT #2</text>
+                <text class="node-subtext" x="115" y="205" text-anchor="middle">ADS7128/1119</text>
+                <text class="node-subtext" x="115" y="220" text-anchor="middle">📡 Bluetooth</text>
+            </g>
+
+            <g class="node" data-name="node-iot3" data-info="30 nœuds au total, transmission périodique toutes les 10s">
+                <rect class="node-rect" x="50" y="250" width="130" height="80" rx="10" fill="url(#gradIoT)" />
+                <text class="node-text" x="115" y="285" text-anchor="middle" font-size="14">Nœud IoT #3</text>
+                <text class="node-subtext" x="115" y="305" text-anchor="middle">+ 27 autres...</text>
+                <text class="node-subtext" x="115" y="320" text-anchor="middle">⚡ ESP-NOW</text>
+            </g>
+
+            <!-- Gateway (center-left) -->
+            <g class="node" data-name="gateway" data-info="Gateway ESP32 - Réception ESP-NOW, déchiffrement AES-256, HMAC">
+                <rect class="node-rect" x="520" y="260" width="100" height="80" rx="10" fill="url(#gradGateway)" />
+                <text class="node-text" x="570" y="295" text-anchor="middle" font-size="14">Gateway</text>
+                <text class="node-subtext" x="570" y="315" text-anchor="middle">ESP-NOW RX</text>
+                <text class="node-subtext" x="570" y="330" text-anchor="middle">🔓 Decrypt</text>
+            </g>
+
+            <!-- Bridge (center) -->
+            <g class="node" data-name="bridge" data-info="Pont Ethernet - MQTT, protocole applicatif vers BMN">
+                <rect class="node-rect" x="800" y="310" width="100" height="80" rx="10" fill="url(#gradBridge)" />
+                <text class="node-text" x="850" y="345" text-anchor="middle" font-size="14">Bridge</text>
+                <text class="node-subtext" x="850" y="365" text-anchor="middle">Ethernet</text>
+                <text class="node-subtext" x="850" y="380" text-anchor="middle">🌐 MQTT</text>
+            </g>
+
+            <!-- Server/BMN (center-right) -->
+            <g class="node" data-name="server" data-info="Serveur BMN - Base de données, traitement, API REST">
+                <rect class="node-rect" x="1050" y="310" width="100" height="80" rx="10" fill="url(#gradServer)" />
+                <text class="node-text" x="1100" y="345" text-anchor="middle" font-size="14">Serveur</text>
+                <text class="node-subtext" x="1100" y="365" text-anchor="middle">BMN/DB</text>
+                <text class="node-subtext" x="1100" y="380" text-anchor="middle">💾 Storage</text>
+            </g>
+
+            <!-- OI Zone (top-right) -->
+            <g class="node" data-name="oi" data-info="Opérateur Interface - Dashboard, configuration, monitoring">
+                <rect class="node-rect" x="1200" y="210" width="120" height="80" rx="10" fill="url(#gradOI)" />
+                <text class="node-text" x="1260" y="245" text-anchor="middle" font-size="14">Interface OI</text>
+                <text class="node-subtext" x="1260" y="265" text-anchor="middle">Dashboard</text>
+                <text class="node-subtext" x="1260" y="280" text-anchor="middle">⚙️ Config</text>
+            </g>
+
+            <!-- Security indicators -->
+            <g id="security-indicators">
+                <text x="300" y="170" font-size="12" fill="#ffd93d" font-weight="bold">🔐 AES-256</text>
+                <text x="300" y="190" font-size="11" fill="#ffd93d">HMAC-SHA256</text>
+                
+                <text x="680" y="330" font-size="11" fill="#95e1d3">Ethernet</text>
+                <text x="680" y="345" font-size="11" fill="#95e1d3">Secured</text>
+            </g>
+
+            <!-- Flow particles will be added dynamically -->
+            <g id="flow-particles"></g>
+        </svg>
+
+        <!-- Tooltip -->
+        <div id="tooltip" class="tooltip"></div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-title">📊 Flux de données</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4ecdc4;"></div>
+                <span>Données capteurs</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b;"></div>
+                <span>Chiffrement AES-256</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffd93d;"></div>
+                <span>Configuration</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #95e1d3;"></div>
+                <span>OTA/Updates</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize interactive features
+        const svg = document.getElementById('architecture-svg');
+        const tooltip = document.getElementById('tooltip');
+        const flowParticlesGroup = document.getElementById('flow-particles');
+
+        // Node hover interactions
+        document.querySelectorAll('.node').forEach(node => {
+            node.addEventListener('mouseenter', function(e) {
+                const name = this.getAttribute('data-name');
+                const info = this.getAttribute('data-info');
+                
+                tooltip.innerHTML = `<strong>${name}</strong><br>${info}`;
+                tooltip.classList.add('visible');
+                
+                // Add pulse effect
+                this.classList.add('active-node');
+            });
+
+            node.addEventListener('mousemove', function(e) {
+                tooltip.style.left = e.pageX + 15 + 'px';
+                tooltip.style.top = e.pageY + 15 + 'px';
+            });
+
+            node.addEventListener('mouseleave', function() {
+                tooltip.classList.remove('visible');
+                this.classList.remove('active-node');
+            });
+
+            // Click to highlight data flow
+            node.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                highlightFlow(name);
+            });
+        });
+
+        // Flow animation system
+        const flowPaths = [
+            { id: 'path-iot-gateway', type: 'data', duration: 2000 },
+            { id: 'path-iot2-gateway', type: 'crypto', duration: 2200 },
+            { id: 'path-iot3-gateway', type: 'data', duration: 2400 },
+            { id: 'path-gateway-bridge', type: 'data', duration: 1500 },
+            { id: 'path-bridge-server', type: 'data', duration: 1200 },
+            { id: 'path-server-oi', type: 'data', duration: 1000 },
+            { id: 'path-config-back', type: 'config', duration: 3000 }
+        ];
+
+        function createFlowParticle(pathId, flowType, duration) {
+            const path = document.getElementById(pathId);
+            if (!path) return;
+
+            const pathLength = path.getTotalLength();
+            
+            // Create particle
+            const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            particle.classList.add('flow-particle', `flow-${flowType}`);
+            particle.setAttribute('r', '5');
+            
+            flowParticlesGroup.appendChild(particle);
+
+            // Animate along path
+            let startTime = null;
+            function animate(timestamp) {
+                if (!startTime) startTime = timestamp;
+                const progress = (timestamp - startTime) / duration;
+
+                if (progress < 1) {
+                    const point = path.getPointAtLength(pathLength * progress);
+                    particle.setAttribute('cx', point.x);
+                    particle.setAttribute('cy', point.y);
+                    
+                    // Fade in and out
+                    if (progress < 0.1) {
+                        particle.style.opacity = progress * 10;
+                    } else if (progress > 0.9) {
+                        particle.style.opacity = (1 - progress) * 10;
+                    } else {
+                        particle.style.opacity = 1;
+                    }
+                    
+                    requestAnimationFrame(animate);
+                } else {
+                    // Remove particle when animation completes
+                    flowParticlesGroup.removeChild(particle);
+                }
+            }
+            
+            requestAnimationFrame(animate);
+        }
+
+        // Start continuous flow animations
+        function startFlowAnimations() {
+            flowPaths.forEach((flow, index) => {
+                // Stagger initial start times
+                setTimeout(() => {
+                    createFlowParticle(flow.id, flow.type, flow.duration);
+                    
+                    // Repeat continuously
+                    setInterval(() => {
+                        createFlowParticle(flow.id, flow.type, flow.duration);
+                    }, flow.duration + 1000);
+                }, index * 300);
+            });
+        }
+
+        // Highlight specific flow when node is clicked
+        function highlightFlow(nodeName) {
+            // Determine relevant paths based on node
+            let relevantPaths = [];
+            
+            if (nodeName.includes('iot')) {
+                relevantPaths = ['path-iot-gateway', 'path-iot2-gateway', 'path-iot3-gateway', 
+                                'path-gateway-bridge', 'path-bridge-server', 'path-server-oi'];
+            } else if (nodeName === 'gateway') {
+                relevantPaths = ['path-gateway-bridge', 'path-bridge-server', 'path-server-oi'];
+            } else if (nodeName === 'bridge') {
+                relevantPaths = ['path-bridge-server', 'path-server-oi'];
+            } else if (nodeName === 'server') {
+                relevantPaths = ['path-server-oi'];
+            } else if (nodeName === 'oi') {
+                relevantPaths = ['path-config-back'];
+            }
+
+            // Create burst of particles
+            relevantPaths.forEach((pathId, index) => {
+                const flow = flowPaths.find(f => f.id === pathId);
+                setTimeout(() => {
+                    createFlowParticle(pathId, flow.type, flow.duration);
+                }, index * 150);
+            });
+        }
+
+        // Auto-cycle through different data types
+        let currentFlowType = 0;
+        const flowTypes = ['data', 'crypto', 'config', 'ota'];
+        
+        function cycleFlowTypes() {
+            currentFlowType = (currentFlowType + 1) % flowTypes.length;
+            
+            // Create a burst of the current flow type
+            const randomPath = flowPaths[Math.floor(Math.random() * flowPaths.length)];
+            createFlowParticle(randomPath.id, flowTypes[currentFlowType], randomPath.duration);
+        }
+
+        // Start animations when page loads
+        window.addEventListener('load', () => {
+            startFlowAnimations();
+            
+            // Cycle flow types every 5 seconds
+            setInterval(cycleFlowTypes, 5000);
+        });
+
+        // Add periodic "data burst" effect
+        function createDataBurst() {
+            // Simulate multiple sensors sending data at once
+            ['path-iot-gateway', 'path-iot2-gateway', 'path-iot3-gateway'].forEach((pathId, index) => {
+                setTimeout(() => {
+                    createFlowParticle(pathId, 'crypto', 2000);
+                    setTimeout(() => {
+                        createFlowParticle(pathId, 'data', 2000);
+                    }, 200);
+                }, index * 100);
+            });
+        }
+
+        // Trigger data bursts every 8 seconds
+        setInterval(createDataBurst, 8000);
+
+        // Add keyboard interaction
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                e.preventDefault();
+                createDataBurst();
+            }
+        });
+
+        // Display info message
+        console.log('🎮 Interactions disponibles:');
+        console.log('  - Survolez les nœuds pour voir les détails');
+        console.log('  - Cliquez sur un nœud pour voir le flux de données');
+        console.log('  - Appuyez sur ESPACE pour déclencher un burst de données');
+    </script>
+</body>
+</html>
