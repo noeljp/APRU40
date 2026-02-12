@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture Réseau IoT APRU40 - Stratégie Sécurité</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #333;
+        }
+
+        .architecture-diagram {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .network-zone {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .zone-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+        }
+
+        .zone-iot { border-left: 8px solid #ff6b6b; }
+        .zone-iot .zone-title { color: #ff6b6b; border-color: #ff6b6b; }
+
+        .zone-gateway { border-left: 8px solid #4ecdc4; }
+        .zone-gateway .zone-title { color: #4ecdc4; border-color: #4ecdc4; }
+
+        .zone-bridge { border-left: 8px solid #95e1d3; }
+        .zone-bridge .zone-title { color: #95e1d3; border-color: #95e1d3; }
+
+        .zone-bmn { border-left: 8px solid #f38181; }
+        .zone-bmn .zone-title { color: #f38181; border-color: #f38181; }
+
+        .zone-oi { border-left: 8px solid #aa96da; }
+        .zone-oi .zone-title { color: #aa96da; border-color: #aa96da; }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .component {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .component:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+        }
+
+        .component-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .component-icon {
+            font-size: 1.5em;
+        }
+
+        .component-details {
+            font-size: 0.9em;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .component-details ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .component-details li {
+            margin-bottom: 5px;
+        }
+
+        .flow-diagram {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .flow-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            min-width: 150px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+
+        .flow-label {
+            background: #e8f4f8;
+            color: #2c3e50;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: 600;
+            border: 2px solid #3498db;
+        }
+
+        .security-features {
+            background: #fff3cd;
+            border: 3px solid #ffc107;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .security-features h3 {
+            color: #856404;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .security-features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .security-features li:before {
+            content: "🔒";
+            position: absolute;
+            left: 0;
+        }
+
+        .data-flows {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .data-flows h3 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .flow-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .flow-type {
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 6px solid;
+        }
+
+        .flow-type-data {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .flow-type-config {
+            background: #f3e5f5;
+            border-color: #9c27b0;
+        }
+
+        .flow-type-update {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .flow-type h4 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .flow-type ul {
+            padding-left: 20px;
+            color: #555;
+        }
+
+        .flow-type li {
+            margin-bottom: 5px;
+        }
+
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-security {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge-encrypted {
+            background: #ffc107;
+            color: #333;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .component:hover {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+            .components-grid {
+                grid-template-columns: 1fr;
+            }
+            .flow-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 Architecture Réseau IoT APRU40</h1>
+            <p>Stratégie de Sécurité et Flux de Données</p>
+            <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">
+                Vue d'ensemble pour le Service de Cybersécurité
+            </p>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff6b6b;"></div>
+                <span>Zone IoT (Capteurs)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4ecdc4;"></div>
+                <span>Gateway ESP32</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #95e1d3;"></div>
+                <span>Bridge (MQTTS Broker)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f38181;"></div>
+                <span>Réseau Production (BMN)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #aa96da;"></div>
+                <span>Réseau Bureautique (OI)</span>
+            </div>
+        </div>
+
+        <div class="architecture-diagram">
+            <!-- Zone IoT -->
+            <div class="network-zone zone-iot">
+                <div class="zone-title">
+                    🌐 Zone IoT - Capteurs et Équipements
+                </div>
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">📡</span>
+                            Nœuds Capteurs ESP32
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>30× ESP32-POE-ISO</li>
+                                <li>ADC: ADS7128 (12-bit) + ADS1119 (16-bit)</li>
+                                <li>Mesures: Température, Pression, Courant</li>
+                                <li>Acquisition: 5s</li>
+                                <li>Transmission: 10s via ESP-NOW</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">📷</span>
+                            Scanner Zebra DS2278
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Bluetooth Classic SPP</li>
+                                <li>Codes-barres 1D/2D + QR</li>
+                                <li>Portée: 10-30m</li>
+                                <li>Sécurité: PIN + Whitelist MAC</li>
+                                <li>Pairing: Authentification sécurisée</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🔐</span>
+                            Sécurité Locale
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Tamper Switch physique</li>
+                                <li>Auto-erase NVS si ouverture</li>
+                                <li>Flash Encryption (AES-256)</li>
+                                <li>Secure Boot V2</li>
+                                <li>Détection intrusion physique</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-features">
+                    <h3>🔒 Protection Niveau IoT</h3>
+                    <ul>
+                        <li>Chiffrement ESP-NOW: AES-256-CBC + IV aléatoire</li>
+                        <li>Authentification: HMAC-SHA256</li>
+                        <li>Anti-replay: Compteur incrémental par nœud</li>
+                        <li>Whitelist MAC: Contrôle sources autorisées</li>
+                        <li>Bluetooth: PIN aléatoire 6 chiffres + Whitelist stricte</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Flow IoT -> Gateway -->
+            <div class="flow-diagram">
+                <div class="flow-title">Flux IoT → Gateway</div>
+                <div class="flow-container">
+                    <div class="flow-row">
+                        <div class="flow-box">Nœuds IoT<br/>(ESP32)</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-label">ESP-NOW<br/>WiFi 2.4GHz<br/>AES-256 + HMAC</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">Gateway<br/>(ESP32-POE)</div>
+                    </div>
+                    <div class="flow-row">
+                        <div class="flow-box">Scanner BT<br/>(Zebra DS2278)</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-label">Bluetooth SPP<br/>PIN + Whitelist</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">Nœuds IoT</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone Gateway -->
+            <div class="network-zone zone-gateway">
+                <div class="zone-title">
+                    🚪 Gateway ESP32 - Interface PC Sécurisée
+                </div>
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">💻</span>
+                            ESP32-POE-ISO Gateway
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Réception ESP-NOW (WiFi)</li>
+                                <li>Déchiffrement + Vérification HMAC</li>
+                                <li>Parsing JSON des données capteurs</li>
+                                <li>Forwarding vers MQTTS</li>
+                                <li>Isolation galvanique (POE-ISO)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🖥️</span>
+                            Interface PC (IT)
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Passerelle sécurisée IT</li>
+                                <li>Filtrage et validation des données</li>
+                                <li>Logs et monitoring</li>
+                                <li>Contrôle accès réseau</li>
+                                <li>Connexion Ethernet vers Bridge</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🛡️</span>
+                            Sécurité Gateway
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Whitelist nœuds autorisés</li>
+                                <li>Statistiques attaques (HMAC, replay)</li>
+                                <li>Détection anomalies</li>
+                                <li>Alertes sécurité temps réel</li>
+                                <li>Firewall applicatif</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flow Gateway -> Bridge -->
+            <div class="flow-diagram">
+                <div class="flow-title">Flux Gateway → Bridge MQTTS</div>
+                <div class="flow-container">
+                    <div class="flow-row">
+                        <div class="flow-box">Gateway<br/>ESP32-POE</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-label">Ethernet<br/>Validation IT</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">Interface PC<br/>(Passerelle IT)</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-label">TCP/IP Sécurisé</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-box">Bridge<br/>(Broker MQTTS)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone Bridge -->
+            <div class="network-zone zone-bridge">
+                <div class="zone-title">
+                    🌉 Bridge - Broker MQTTS (TLS 1.3)
+                </div>
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🔄</span>
+                            Broker MQTTS
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Protocole: MQTT over TLS 1.3</li>
+                                <li>Port: 8883 (MQTTS standard)</li>
+                                <li>Authentification: Certificats X.509</li>
+                                <li>Topics par nœud: apru40/node/{id}/data</li>
+                                <li>QoS: Niveau 1 (at least once)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">⚙️</span>
+                            Interface Admin
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Supervision temps réel</li>
+                                <li>Configuration OTA (Over-The-Air)</li>
+                                <li>Gestion certificats TLS</li>
+                                <li>Monitoring flux MQTTS</li>
+                                <li>Dashboards sécurité</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🔐</span>
+                            Sécurité Bridge
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>TLS 1.3 (Perfect Forward Secrecy)</li>
+                                <li>Certificats CA internes</li>
+                                <li>Mutual TLS (mTLS) authentification</li>
+                                <li>Isolation réseau BMN ↔ OI</li>
+                                <li>Logs d'audit complets</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-features">
+                    <h3>🔒 Protection Niveau Bridge</h3>
+                    <ul>
+                        <li>Chiffrement TLS 1.3: ChaCha20-Poly1305 ou AES-256-GCM</li>
+                        <li>Authentification mutuelle: Client + Server certificates</li>
+                        <li>Révocation: CRL (Certificate Revocation List)</li>
+                        <li>Segmentation réseau: Firewall entre BMN et OI</li>
+                        <li>IDS/IPS: Détection intrusion sur flux MQTTS</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Flow Bridge -> Networks -->
+            <div class="flow-diagram">
+                <div class="flow-title">Flux Bridge → Réseaux Production/Bureautique</div>
+                <div class="flow-container">
+                    <div class="flow-row">
+                        <div class="flow-box">Broker MQTTS<br/>(Bridge)</div>
+                        <div class="flow-arrow">↓</div>
+                    </div>
+                    <div class="flow-row">
+                        <div style="display: flex; gap: 40px; flex-wrap: wrap; justify-content: center;">
+                            <div style="text-align: center;">
+                                <div class="flow-label">MQTTS + Firewall</div>
+                                <div class="flow-arrow" style="display: block; margin: 10px 0;">↓</div>
+                                <div class="flow-box">Réseau BMN<br/>(Production)</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div class="flow-label">MQTTS + Firewall</div>
+                                <div class="flow-arrow" style="display: block; margin: 10px 0;">↓</div>
+                                <div class="flow-box">Réseau OI<br/>(Bureautique)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone BMN -->
+            <div class="network-zone zone-bmn">
+                <div class="zone-title">
+                    🏭 Réseau Production (BMN)
+                </div>
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🖥️</span>
+                            Serveurs Production
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Base de données temps réel</li>
+                                <li>SCADA / Supervision industrielle</li>
+                                <li>Analyse et traitement données</li>
+                                <li>Abonnement topics MQTTS</li>
+                                <li>Alertes et notifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">📊</span>
+                            Applications Métier
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Gestion production</li>
+                                <li>Maintenance prédictive</li>
+                                <li>Qualité et traçabilité</li>
+                                <li>Rapports et KPI</li>
+                                <li>Intégration ERP</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone OI -->
+            <div class="network-zone zone-oi">
+                <div class="zone-title">
+                    💼 Réseau Bureautique (OI)
+                </div>
+                <div class="components-grid">
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">🖥️</span>
+                            Postes Administrateurs
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Interface web administration</li>
+                                <li>Dashboards de visualisation</li>
+                                <li>Configuration OTA devices</li>
+                                <li>Gestion utilisateurs et droits</li>
+                                <li>Rapports et analyses</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="component">
+                        <div class="component-title">
+                            <span class="component-icon">📱</span>
+                            Supervision IT
+                        </div>
+                        <div class="component-details">
+                            <ul>
+                                <li>Monitoring infrastructure</li>
+                                <li>Gestion certificats TLS</li>
+                                <li>Logs et audit sécurité</li>
+                                <li>Détection incidents</li>
+                                <li>Conformité NIS2</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flows Types -->
+            <div class="data-flows">
+                <h3>📊 Types de Flux de Données</h3>
+                <div class="flow-types">
+                    <div class="flow-type flow-type-data">
+                        <h4>📈 Flux Données (Data)</h4>
+                        <ul>
+                            <li><strong>Source:</strong> Capteurs IoT → Gateway</li>
+                            <li><strong>Fréquence:</strong> 10 secondes</li>
+                            <li><strong>Contenu:</strong> Mesures ADC (température, pression, courant)</li>
+                            <li><strong>Format:</strong> JSON chiffré AES-256</li>
+                            <li><strong>Destination:</strong> Broker MQTTS → BMN/OI</li>
+                            <li><strong>Sécurité:</strong> ESP-NOW + MQTTS (double chiffrement)</li>
+                        </ul>
+                    </div>
+                    <div class="flow-type flow-type-config">
+                        <h4>⚙️ Flux Configuration (Config)</h4>
+                        <ul>
+                            <li><strong>Source:</strong> Interface Admin → Broker → Gateway → IoT</li>
+                            <li><strong>Fréquence:</strong> À la demande</li>
+                            <li><strong>Contenu:</strong> Paramètres capteurs, périodes acquisition</li>
+                            <li><strong>Format:</strong> MQTT publish sur topics /config</li>
+                            <li><strong>Authentification:</strong> Certificats TLS client</li>
+                            <li><strong>Validation:</strong> Signature numérique requise</li>
+                        </ul>
+                    </div>
+                    <div class="flow-type flow-type-update">
+                        <h4>🔄 Flux Mises à Jour (OTA)</h4>
+                        <ul>
+                            <li><strong>Source:</strong> Serveur OTA → Broker → Gateway → IoT</li>
+                            <li><strong>Fréquence:</strong> Maintenance planifiée</li>
+                            <li><strong>Contenu:</strong> Firmware ESP32 signé</li>
+                            <li><strong>Signature:</strong> RSA-3072 ou ECDSA</li>
+                            <li><strong>Intégrité:</strong> Hash SHA-256 vérifié</li>
+                            <li><strong>Rollback:</strong> Automatique si échec</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Summary -->
+            <div class="flow-diagram" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);">
+                <div class="flow-title" style="color: #1b5e20;">🔐 Résumé Stratégie Sécurité Globale</div>
+                <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; border-left: 6px solid #4caf50;">
+                            <h4 style="color: #2e7d32; margin-bottom: 10px; font-size: 1.2em;">🛡️ Défense en Profondeur</h4>
+                            <ul style="color: #555; line-height: 1.8;">
+                                <li><strong>Couche 1:</strong> Tamper physique + Flash Encryption</li>
+                                <li><strong>Couche 2:</strong> ESP-NOW AES-256 + HMAC</li>
+                                <li><strong>Couche 3:</strong> Bluetooth PIN + Whitelist</li>
+                                <li><strong>Couche 4:</strong> Passerelle IT validation</li>
+                                <li><strong>Couche 5:</strong> MQTTS TLS 1.3</li>
+                                <li><strong>Couche 6:</strong> Firewall BMN ↔ OI</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; border-left: 6px solid #ff9800;">
+                            <h4 style="color: #e65100; margin-bottom: 10px; font-size: 1.2em;">👁️ Détection et Réponse</h4>
+                            <ul style="color: #555; line-height: 1.8;">
+                                <li><strong>Monitoring:</strong> Tamper switches temps réel</li>
+                                <li><strong>Statistiques:</strong> Attaques HMAC, replay détectées</li>
+                                <li><strong>Alertes:</strong> Notifications ESP-NOW/MQTT instantanées</li>
+                                <li><strong>Logs:</strong> Audit complet tous flux MQTTS</li>
+                                <li><strong>Auto-erase:</strong> NVS effacé si intrusion</li>
+                                <li><strong>Conformité:</strong> NIS2 Directive (EU) 2022/2555</li>
+                            </ul>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 8px; border-left: 6px solid #2196f3;">
+                            <h4 style="color: #0d47a1; margin-bottom: 10px; font-size: 1.2em;">🔑 Gestion Clés et Certificats</h4>
+                            <ul style="color: #555; line-height: 1.8;">
+                                <li><strong>AES-256:</strong> Clés uniques par déploiement</li>
+                                <li><strong>HMAC-SHA256:</strong> Clés distinctes authentification</li>
+                                <li><strong>TLS 1.3:</strong> Certificats X.509 CA interne</li>
+                                <li><strong>Rotation:</strong> Protocole renouvellement clés</li>
+                                <li><strong>Storage:</strong> eFuse (future) pour clés critiques</li>
+                                <li><strong>Révocation:</strong> CRL pour certificats compromis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Architecture Benefits -->
+            <div class="flow-diagram" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                <div class="flow-title" style="color: #0d47a1;">✅ Points Clés de l'Architecture</div>
+                <div style="padding: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🔐</div>
+                            <strong style="color: #1976d2;">Sécurité Multi-Couches</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                6 niveaux de protection: physique, ESP-NOW, Bluetooth, IT, MQTTS, firewall
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">⚡</div>
+                            <strong style="color: #1976d2;">Performance Optimale</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                Latence <20ms bout-en-bout, 30 nœuds simultanés, 0.3% occupation canal
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🔄</div>
+                            <strong style="color: #1976d2;">Isolation Réseaux</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                Segmentation stricte BMN/OI via bridge MQTTS, aucune communication directe
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">👁️</div>
+                            <strong style="color: #1976d2;">Visibilité Complète</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                Identification flux data/config/OTA, monitoring temps réel, logs audit
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">🛡️</div>
+                            <strong style="color: #1976d2;">Protection Intrusion</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                Tamper switches, auto-erase, détection anomalies, alertes instantanées
+                            </p>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📋</div>
+                            <strong style="color: #1976d2;">Conformité NIS2</strong>
+                            <p style="color: #555; margin-top: 5px; font-size: 0.9em;">
+                                Score 7.5/10 (objectif 8.2/10), audit complet, gestion des risques
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p><strong>Projet APRU40</strong> - Architecture IoT Sécurisée</p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                Réseau de 30 nœuds capteurs ESP32 avec communication ESP-NOW chiffrée (AES-256) et broker MQTTS (TLS 1.3)
+            </p>
+            <p style="margin-top: 10px; font-size: 0.85em; opacity: 0.7;">
+                Conforme Directive NIS2 (EU) 2022/2555 - Dernière mise à jour: Février 2026
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
